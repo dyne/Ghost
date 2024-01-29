@@ -3,6 +3,7 @@ const debug = require('@tryghost/debug');
 const logging = require('@tryghost/logging');
 const metrics = require('@tryghost/metrics');
 const errors = require('@tryghost/errors');
+const fs = require('node:fs');
 
 module.exports = class MailgunClient {
     #config;
@@ -96,6 +97,15 @@ module.exports = class MailgunClient {
             if (message.track_opens) {
                 messageData['o:tracking-opens'] = true;
             }
+
+            const content = JSON.stringify(messageData);
+            fs.writeFile('message.json', content, (err) => {
+                if (err) {
+                    logging.error(err);
+                } else {
+                    logging.info('====== WRITTEN SUCCESSULLY ====');
+                }
+            });
 
             const mailgunConfig = this.#getConfig();
             startTime = Date.now();
